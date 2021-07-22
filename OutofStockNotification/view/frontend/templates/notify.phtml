@@ -1,0 +1,480 @@
+<?php
+	$product = $block->getCurrentProduct();
+	$productid = $product->getId();
+	// $_productStock = $block->getProductStock($productid);
+
+
+	$block->isEnableFmeExtension();
+?>
+<?php if($block->isEnableFmeExtension()){ 
+	?>
+	<?php if ($block->isEnable() && $block->isAllowCustomerGroup() == 1) :?>
+		<?php if ($product->getTypeId() == "simple") :?>
+		 <?php if ($product->getIsEnableOutofstock()==1) :?>
+			<?php if (!$product->isSalable()) :?>
+			<div class="mageants-notify-main">
+				<div id="mageants-notify-form">
+					<form  id= "notify" action="<?php echo $block->getSaveUrl(); ?>" method = "POST">
+						<div>
+							<p><?php echo $block->getNotificationMessage(); ?></p>
+							<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+							<input type="hidden" name="productSku" value="<?php echo $product->getSku(); ?>">
+							<input type="hidden" name="productName" value="<?php echo $product->getName(); ?>">
+							<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+						</div>
+						<div>
+							<div>
+								<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+							</div>
+							<div style="margin-top: 10px;">
+								<button class="action primary" formaction="<?php echo $block->getSaveUrl(); ?>" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<?php endif;?>
+		   <?php endif;?>
+		<?php endif;?>
+		<?php if ($product->getIsEnableOutofstock()==1) :?>
+		<?php if ($product->getTypeId() == "configurable" && !$product->isInStock()) :?>
+			<div class="mageants-notify-main">
+				<div id="mageants-notify-form">
+					<form  id= "notify" action="<?php echo $block->getSaveUrl(); ?>" method = "POST">
+						<div>
+							<p><?php echo $block->getNotificationMessage(); ?></p>
+							<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+							<input type="hidden" name="productSku" value="<?php echo $product->getSku(); ?>">
+							<input type="hidden" name="productName" value="<?php echo $product->getName(); ?>">
+							<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+						</div>
+						<div>
+							<div>
+								<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+							</div>
+							<div style="margin-top: 10px;">
+								<button class="action primary" formaction="<?php echo $block->getSaveUrl(); ?>" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		 <?php endif;?>
+		<?php endif;?>
+
+		<?php if ($block->isEnable() && $product->getTypeId() == "configurable") :?>
+			<div class="mageants-notify-main" id="popup-modal" style="display:none;">
+				<div id="mageants-notify-form-simple">
+					<?php
+					$product = $block->getCurrentProduct();
+					$data = $product->getTypeInstance()->getConfigurableOptions($product);
+					$optionsData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+					$superAttrCode=array();
+					foreach ($optionsData as $option) {
+						$superAttrCode[]=$option['attribute_code'];
+					}
+					$usedProducts = $product->getTypeInstance()->getUsedProductCollection($product);
+					foreach ($usedProducts as $childProduct) 
+					{	
+						// $stockProduct = $block->getProductStock($childProduct->getId());
+						
+							$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+							$simpleProduct = $block->getProduct($childProduct->getId());
+							$id = "";
+							$ids = array();
+							foreach ($superAttrCode as $key => $value) {
+									$id = $id.$simpleProduct->getData($value);
+									if($value == 'color'){
+										$ids[] = $simpleProduct->getData($value);
+
+									}
+									
+							}
+							
+							if (!$simpleProduct->isSalable() && $simpleProduct->getIsEnableOutofstock() == 1) {
+								foreach ($ids as $value) { ?>
+									
+							<input type="hidden" name="color-id[]" id="color-id" value="<?php echo $value; ?>">
+								<?php }
+						?>	
+							<form  id= "<?php echo $id; ?>" action="<?php echo $block->getSaveUrl(); ?>" method = "POST" style="display: none;">
+								<div>
+									<p><?php echo $block->getNotificationMessage(); ?></p>
+									<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+									<input type="hidden" name="productSku" value="<?php echo $simpleProduct->getSku(); ?>">
+									<input type="hidden" name="productName" value="<?php echo $simpleProduct->getName(); ?>">
+									<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+								</div>
+								<div>
+									<div>
+										<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+									</div>
+									<div style="margin-top: 10px;">
+										<button class="action primary" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+									</div>
+								</div>
+							</form>
+							<?php
+						}
+					}
+					?>
+				</div>
+			</div>
+		<?php endif;?>
+	<?php endif;?>
+
+	<script type="text/javascript">
+		require([
+		  'jquery',
+		  'jquery/ui'
+		], function($){
+			 $(document).ready(function() {
+			 	$('.magneto_cart_detail').on('click', '.color_change_block', function () {
+	                setTimeout(function(){
+	                    OnClick();
+	                },100);
+	                
+	            });
+		        $('.itemselected').click(function () {
+					if ($(this).is(":checked"))
+						{
+						OnClick();
+						}
+				});
+		       
+		        //start when configrable product outofstock
+		        
+		          	getstockstatus = '<?php echo $product->isInStock() ;?>';
+		          	if(getstockstatus==0){
+		          		jQuery('.product-options-wrapper').css("display", "none");
+		          		jQuery('.product-add-form .product-options-bottom .box-tocart ').css("display", "none");
+		          		jQuery('.product-info-stock-sku span').html('Out Of stock');
+		          	}
+	          	 
+	          	//End when configrable product outofstock
+
+	            $('.magneto_cart_detail').on('change', '.color_change_block', function () {
+	                 setTimeout(function(){
+	                    OnClick();
+	                },100);
+	            });
+
+	            $('#product-options-wrapper select').on('change', function () {
+	            	var finalval = "";
+	                jQuery('#product-options-wrapper select').each(function() {
+	                	var selectedVal = $(this).val();
+						if (selectedVal != "") 
+						{
+							finalval = finalval+selectedVal;
+						}
+			        	jQuery('.mageants-notify-main #mageants-notify-form-simple > form').each(function() {
+							var id = jQuery(this).attr('id');
+				           	if (id == finalval) 
+				           	{
+				           		$(this).css("display", "block");
+				           	}
+				           	else{
+				           		$(this).css("display", "none");
+				           	}
+					    });					
+				    });
+	            });	
+
+		    });
+			function OnClick () 
+			{		
+				var value='';
+				var getselectedid = '';
+				var ch_list=Array(); 
+				var selecteditem = ''; 
+				$('.itemselected').click(function () {
+					var i = 0;
+						
+			 		ch_list=[];
+					var super_attribute = [];
+					jQuery('.swatch-attribute').each(function() {
+			            var id = jQuery(this).attr('data-attribute-id');
+			            value = jQuery('.black_color.swatch-color.selected').attr('value');
+						
+			        });
+			        $(".itemselected").each(function(){
+
+						  if ($(this).prop('checked')==true){ 
+						  	ch_list.push(value+$(this).val());
+							selecteditem = value+$(this).val();
+							i++;
+						}
+				 	});
+				if(i == 0){
+					selecteditem = '';
+					ch_list=[];
+				}
+				var notify_pro = [];
+		   			jQuery('.mageants-notify-main #mageants-notify-form-simple > form').each(function() {
+						var id = jQuery(this).attr('id');
+		        		notify_pro.push(id);				        
+				    });
+
+		   			var selected = value + $(this).val();
+		   			$('.mageants-notify-main #mageants-notify-form-simple form').css("display", "none");
+				    $.each( notify_pro, function( key, value ) {
+					    var index = $.inArray( value, ch_list );
+					    if( index != -1 ) {
+					    	$('.mageants-notify-main #mageants-notify-form-simple form#'+value).css("display", "block");
+					    	var arrayCompare = $.inArray( selected, notify_pro );
+					    	if( arrayCompare != -1 ) {
+					    		var compareinarray = $.inArray( selected, ch_list );
+					    		if( compareinarray != -1 ) {
+					    			$('.mageants-notify-main #mageants-notify-form-simple form').css("display", "none");
+						    		$('.mageants-notify-main #mageants-notify-form-simple form#'+selected).css("display", "block");
+					    		}
+					    	}
+					    	return false;
+					    }
+					    
+					});
+			    });
+			}
+		}); 
+	</script>
+	<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Notify me when its in stock',
+                buttons: [{
+                    text: $.mage.__('Continue'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    }
+                }]
+            };
+
+            var popup = modal(options, $('#popup-modal'));
+            $("#click-me").on('click',function(){ 
+                $("#popup-modal").modal("openModal");
+            });
+
+        }
+    );
+</script>
+<?php }else{ ?>
+
+	<?php  ?>
+		<?php if ($block->isEnable() && $block->isAllowCustomerGroup() == 1) :?>
+		<?php if ($product->getTypeId() == "simple") :?>
+		 <?php if ($product->getIsEnableOutofstock()==1) :?>
+			<?php if (!$product->isSalable()) :?>
+			<div class="mageants-notify-main">
+				<div id="mageants-notify-form">
+					<form  id= "notify" action="<?php echo $block->getSaveUrl(); ?>" method = "POST">
+						<div>
+							<p><?php echo $block->getNotificationMessage(); ?></p>
+							<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+							<input type="hidden" name="productSku" value="<?php echo $product->getSku(); ?>">
+							<input type="hidden" name="productName" value="<?php echo $product->getName(); ?>">
+							<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+						</div>
+						<div>
+							<div>
+								<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+							</div>
+							<div style="margin-top: 10px;">
+								<button class="action primary" formaction="<?php echo $block->getSaveUrl(); ?>" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<?php endif;?>
+		   <?php endif;?>
+		<?php endif;?>
+		<?php if ($product->getIsEnableOutofstock()==1) :?>
+		<?php if ($product->getTypeId() == "configurable" && !$product->isInStock()) :?>
+			<div class="mageants-notify-main">
+				<div id="mageants-notify-form">
+					<form  id= "notify" action="<?php echo $block->getSaveUrl(); ?>" method = "POST">
+						<div>
+							<p><?php echo $block->getNotificationMessage(); ?></p>
+							<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+							<input type="hidden" name="productSku" value="<?php echo $product->getSku(); ?>">
+							<input type="hidden" name="productName" value="<?php echo $product->getName(); ?>">
+							<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+						</div>
+						<div>
+							<div>
+								<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+							</div>
+							<div style="margin-top: 10px;">
+								<button class="action primary" formaction="<?php echo $block->getSaveUrl(); ?>" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		 <?php endif;?>
+		<?php endif;?>
+
+		<?php if ($block->isEnable() && $product->getTypeId() == "configurable") :?>
+			<div class="mageants-notify-main">
+				<div id="mageants-notify-form-simple">
+					<?php
+					$product = $block->getCurrentProduct();
+					$data = $product->getTypeInstance()->getConfigurableOptions($product);
+					$optionsData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+					$superAttrCode=array();
+					foreach ($optionsData as $option) {
+						$superAttrCode[]=$option['attribute_code'];
+					}
+					$usedProducts = $product->getTypeInstance()->getUsedProductCollection($product);
+					foreach ($usedProducts as $childProduct) 
+					{	
+						// $stockProduct = $block->getProductStock($childProduct->getId());
+						
+							$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+							$simpleProduct = $block->getProduct($childProduct->getId());
+							$id = "";
+							$ids = "";
+							foreach ($superAttrCode as $key => $value) {
+									$id = $id.$simpleProduct->getData($value);
+									if($value == 'color'){
+										$ids = $simpleProduct->getData($value);
+
+									}
+									
+							}
+									// exit;
+							if (!$simpleProduct->isSalable() && $simpleProduct->getIsEnableOutofstock() == 1) {
+						?>	
+							<input type="hidden" name="color-id" id='color-id' value="<?php echo $ids; ?>" >
+							<form  id= "<?php echo $id; ?>" action="<?php echo $block->getSaveUrl(); ?>" method = "POST" style="display: none;">
+								<div>
+									<p><?php echo $block->getNotificationMessage(); ?></p>
+									<input type="hidden" name="customerId" value="<?php echo $block->getLoggedCustomerId(); ?>">
+									<input type="hidden" name="productSku" value="<?php echo $simpleProduct->getSku(); ?>">
+									<input type="hidden" name="productName" value="<?php echo $simpleProduct->getName(); ?>">
+									<input type="hidden" name="producturl" class="producturl" value="<?php echo $product->getUrlKey(); ?>">
+								</div>
+								<div>
+									<div>
+										<input type="email" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($block->isLoggedIn()) { echo trim($block->getLoggedCustomerEmail()); } ?>">
+									</div>
+									<div style="margin-top: 10px;">
+										<button class="action primary" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+									</div>
+								</div>
+							</form>
+							<?php
+						}
+					}
+					?>
+				</div>
+			</div>
+		<?php endif;?>
+	<?php endif;?>
+
+	<script type="text/javascript">
+		require([
+		  'jquery',
+		  'jquery/ui'
+		], function($){
+			 $(document).ready(function() {
+		       $('.swatch-opt').on('click', '.swatch-option', function () {
+	                setTimeout(function(){
+	                    OnClick();
+	                },100);
+	                
+	            });
+
+	            $('.swatch-opt').on('change', '.swatch-select', function () {
+	                 setTimeout(function(){
+	                    OnClick();
+	                },100);
+	            });
+
+	            $('#product-options-wrapper select').on('change', function () {
+	            	var finalval = "";
+	                jQuery('#product-options-wrapper select').each(function() {
+	                	var selectedVal = $(this).val();
+						if (selectedVal != "") 
+						{
+							finalval = finalval+selectedVal;
+						}
+			        	jQuery('.mageants-notify-main #mageants-notify-form-simple > form').each(function() {
+							var id = jQuery(this).attr('id');
+				           	if (id == finalval) 
+				           	{
+				           		$(this).css("display", "block");
+				           	}
+				           	else{
+				           		$(this).css("display", "none");
+				           	}
+					    });					
+				    });
+	            });	
+
+		    });
+			function OnClick () 
+			{			
+				
+				var super_attribute = [];
+				jQuery('.swatch-attribute').each(function() {
+		            var id = jQuery(this).attr('data-attribute-id');
+		            var value = jQuery(this).attr('data-option-selected');
+		            if (value != "") 
+		            {
+		            	super_attribute[id] = value;
+		            }
+		        });
+		       
+		        var attr_key = Array();
+		        var attr_value = Array();
+		        var i = 0;
+		        $.each(super_attribute, function( index, value ) {
+		        	if (value != undefined) {
+		        		attr_key[i] = index;
+		        		attr_value[i] = value;
+		        		i = i + 1;
+		        	}	        	
+				});
+
+				var final = "";
+				for (var i = attr_value.length - 1; i >= 0 ; i--) {
+			  		final += attr_value[i];
+	        	}
+	        	var isOutOfStock = 0;
+	        	jQuery('.mageants-notify-main #mageants-notify-form-simple > form').each(function() {
+	        	
+					var id = jQuery(this).attr('id');
+			           if (id == final) 
+			           {
+			           	$(this).css("display", "block");
+			           	isOutOfStock = 1;
+			           }
+			           else{
+			           	$(this).css("display", "none");
+			           }
+			    });
+			    if (isOutOfStock == 1) {
+			    	jQuery('.product-add-form .product-options-bottom .box-tocart').css("display", "none");
+			    }
+			    else{
+			    	jQuery('.product-add-form .product-options-bottom .box-tocart').css("display", "block");
+			    }
+			}
+
+		}); 
+	</script>
+
+<?php } ?>

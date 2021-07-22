@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Email/etc/email_templates.xsd">
+    <template id="mageants_outofstocknotification_customer_stock_subscription_set_notification_email_template" label="Notification" file="mageants_notify_template.html" type="html" module="Mageants_OutofStockNotification" area="frontend"/>
+    <template id="mageants_outofstocknotification_admin_stock_subscription_email_template_for_low_qty" label="Low Quantity Product" file="mageants_qty_notify.html" type="html" module="Mageants_OutofStockNotification" area="frontend"/>
+    <template id="mageants_outofstocknotification_admin_stock_subscription_email_template_for_subscribed_customer" label="Subscribed Customer" file="mageants_notify_template.html" type="html" module="Mageants_OutofStockNotification" area="frontend"/>
+    <template id="mageants_outofstocknotification_admin_stock_subscription_notify_customer_on_subscription" label="Notify subscription status" file="subscription_mail.html" type="html" module="Mageants_OutofStockNotification" area="frontend"/>
+    <template id="mageants_outofstocknotification_admin_stock_subscription_notify_admin_subscription" label="Notify subscription status to admin" file="notifyadmin.html" type="html" module="Mageants_OutofStockNotification" area="frontend"/>
+</config>

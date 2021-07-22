@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+ /**
+ * @category  Mageants PdfInvoice
+ * @package   Mageants_PdfInvoice
+ * @copyright Copyright (c) 2018 mageants
+ * @author Mageants Team <info@mageants.com>
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Mageants_OutofStockNotification::config" title="Mageants Stock Notification Configuration" sortOrder="50"></resource>
+                        </resource>
+                    </resource>
+                </resource>
+                <resource id="Magento_Catalog::catalog">
+					<resource id="Mageants_OutofStockNotification::notification" title="Mageants Stock Notification Label" translate="title" sortOrder="10" />
+			        <resource id="Mageants_OutofStockNotification::notificationlist" title="Mageants Stock Notification Label Menu" translate="title" sortOrder="10">
+                        <resource id="Mageants_OutofStockNotification::massdelete" title="Mageants Stock Notification Delete" sortOrder="30" />
+                    </resource>
+				</resource>
+			</resource>
+        </resources>
+    </acl>
+</config>

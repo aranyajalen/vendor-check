@@ -1,0 +1,185 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+
+<?php
+    $_product = $block->getProduct();
+?>
+<?php if ($_product->isSaleable() && $block->hasOptions()): ?>
+<div id="bundleSummary"
+     class="block-bundle-summary"
+     data-mage-init='{"sticky":{"container": ".product-add-form"}}'>
+    <div class="title">
+        <strong><?= /* @escapeNotVerified */ __('Your Customization') ?></strong>
+    </div>
+    <div class="content">
+        <div class="bundle-info">
+            <?= $block->getImage($_product, 'bundled_product_customization_page')->toHtml() ?>
+            <div class="product-details">
+                <strong class="product name"><?= $block->escapeHtml($_product->getName()) ?></strong>
+                <?php if ($_product->getIsSalable()): ?>
+                    <p class="available stock" title="<?= /* @escapeNotVerified */ __('Availability') ?>">
+                        <span><?= /* @escapeNotVerified */ __('In stock') ?></span>
+                    </p>
+                <?php else: ?>
+                    <p class="unavailable stock" title="<?= /* @escapeNotVerified */ __('Availability') ?>">
+                        <span><?= /* @escapeNotVerified */ __('Out of stock') ?></span>
+                    </p>
+                <?php endif; ?>
+                <?= $block->getChildHtml('', true) ?>
+            </div>
+        </div>
+        <div class="bundle-summary">
+            <strong class="subtitle"><?= /* @escapeNotVerified */ __('Summary') ?></strong>
+            <div id="bundle-summary" data-container="product-summary">
+                <ul data-mage-init='{"productSummary": []}' class="bundle items"></ul>
+                <script data-template="bundle-summary" type="text/x-magento-template">
+                    <li>
+                        <strong class="label"><%- data._label_ %>:</strong>
+                        <div data-container="options"></div>
+                    </li>
+                </script>
+                <script data-template="bundle-option" type="text/x-magento-template">
+                    <div><?= /* @escapeNotVerified */ __('%1 x %2', '<%- data._quantity_ %>', '<%- data._label_ %>') ?></div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/x-magento-init">
+    {
+        ".product-add-form": {
+            "slide": {
+                "slideSpeed": 1500,
+                "slideSelector": "#bundle-slide",
+                "slideBackSelector": ".action.customization.back",
+                "bundleProductSelector": "#bundleProduct",
+                "bundleOptionsContainer": ".product-add-form"
+                <?php if ($block->isStartCustomization()): ?>
+                ,"autostart": true
+                <?php endif;?>
+            }
+        }
+    }
+</script>
+<?php endif; ?>
+<?php $notifyBlock = $block->getLayout()->createBlock('Mageants\OutofStockNotification\Block\Product\Notify');?>
+<script type="text/javascript">
+    require([
+      'jquery',
+      'jquery/ui'
+    ], function($){
+        $('.product.bundle.option').click( function() {
+           OnClick();   
+        });
+        $(".product.bundle.option").change(function(){            
+            var i = 0;
+            var selectId = jQuery(this).attr("id");
+            var selectedVal = $("#"+selectId+" option:selected").val();
+            var select_val = "";
+            var $this = jQuery(this).parents(".control");
+            if (jQuery(this).attr('type') == "radio") {
+                var select_val = selectId;
+            }
+            else{
+                var select_val = selectId + '-' + selectedVal;              
+            }
+            if (jQuery(this).attr('type') == "checkbox") {
+                jQuery($this).find('.mageants-bundle-option').each(function() {
+                    var div_id = jQuery(this).attr("id");    
+                    if (div_id == select_val) 
+                    {
+                        jQuery(this).css("display", "block");
+                    }
+                });
+            }
+            else{
+                jQuery($this).find('.mageants-bundle-option').each(function() {
+                    var div_id = jQuery(this).attr("id");        
+                    if (div_id == select_val) 
+                    {
+                        jQuery(this).css("display", "block");
+                    }
+                    else{
+                        jQuery(this).css("display", "none");
+                    }
+                });
+            }
+            var $Parent = jQuery(this).parents("#product_addtocart_form");
+            jQuery($Parent).find('.mageants-bundle-option').each(function() {
+                var isDisplay = jQuery(this).css("display");
+                
+                if (isDisplay == "block") {
+                    i = 1;
+                }
+                if (i == 1) {
+                    jQuery($Parent).find('#bundleSummary').css("display", "none");
+                }
+                else{
+                    jQuery($Parent).find('#bundleSummary').css("display", "block");
+                }
+            });
+        });
+        $('.notifyBundle').on('click', function () {            
+            var customerId = $(this).parents(".mageants-notify-bundle").find("#customerId").val();
+            var productSku = $(this).parents(".mageants-notify-bundle").find("#productSku").val();
+            var productName = $(this).parents(".mageants-notify-bundle").find("#productName").val();
+            var customerEmail = $(this).parents(".mageants-notify-bundle").find("#notify").val();
+            var producturl = $(this).parents(".mageants-notify-bundle").find(".producturl").val();
+            
+            $.ajax({
+                type: "POST",
+                url: "<?php echo $notifyBlock->getSaveUrl(); ?>",
+                data: {Id: customerId, Sku:productSku, Name:productName, Email:customerEmail, producturl:producturl},
+                success:  function(data){
+                    //window.location.reload(true);
+                }
+
+            });   
+        });
+        $(document).ready(function() {  
+            setTimeout(function(){ OnClick(); }, 3000);
+        });
+    }); 
+    function OnClick () 
+    {       
+        console.log("Onclick");
+        jQuery(".field.option").find('.nested.options-list').each(function() {
+           jQuery(this).find('.product.bundle.option').each(function() {
+               if (jQuery(this).attr("checked") == "checked") 
+               {
+                    var radio_id = jQuery(this).attr("id");
+                    var $this = jQuery(this).parents(".nested.options-list");
+                    console.log("radio_id ".radio_id);
+                    jQuery($this).find('.mageants-bundle-option').each(function() {
+                        var div_id = jQuery(this).attr("id");
+                        if (div_id == radio_id) 
+                        {
+                            var $Parent = jQuery(this).parents("#product_addtocart_form");
+                            jQuery(this).css("display", "block");
+                            jQuery($Parent).find('#bundleSummary').css("display", "none");
+                        }
+                    });
+               }
+                else{
+                    var radio_id = jQuery(this).attr("id");
+                    var $this = jQuery(this).parents(".nested.options-list");
+                    jQuery($this).find('.mageants-bundle-option').each(function() {
+                        var div_id = jQuery(this).attr("id");
+                        if (div_id == radio_id) 
+                        {
+                            jQuery(this).css("display", "none");
+                        }
+                    });                    
+                }
+            });
+        });
+    }
+</script>
+

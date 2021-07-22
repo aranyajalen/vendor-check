@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+
+<?php $_product = $block->getProduct() ?>
+<?php $notifyBlock= $block->getLayout()->createBlock('Mageants\OutofStockNotification\Block\Product\Notify'); ?>
+<?php if (!$_product->isSaleable() && $_product->getIsEnableOutofstock() == 1 && $notifyBlock->isEnable() == 1 && $notifyBlock->getAllowSelectSimpleBundle() == 1) : ?>
+	<form  id= "notify" action="<?php echo $notifyBlock->getSaveUrl(); ?>" method = "POST">
+	    <div>
+	        <div>
+	            <div class="mageants-notify-main">
+	                <div id="mageants-notify-form">
+	                    <div class="mageants-notify-group">
+	                        <div>
+	                            <p><?php echo $notifyBlock->getNotificationMessage(); ?></p>
+	                            <input type="hidden" id="customerId" name="customerId" value="<?php echo $notifyBlock->getLoggedCustomerId(); ?>">
+	                            <input type="hidden" id="productSku" name="productSku" value="<?php echo $_product->getSku(); ?>">
+	                            <input type="hidden" id="productName" name="productName" value="<?php echo $_product->getName(); ?>">
+	                            <input type="hidden" name="producturl" class="producturl"  value="<?php echo $_product->getUrlKey().'.html'; ?>">
+	                        </div>
+	                        <div>
+	                            <div>
+	                                <input type="email" id="notify" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($notifyBlock->isLoggedIn()) { echo trim($notifyBlock->getLoggedCustomerEmail()); } ?>">
+	                            </div>
+	                            <div>
+	                                <button id="notifyGroup" class="action primary notifyGroup" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+	                            </div>
+	                        </div>                                
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</form>
+<?php endif; ?>
+<?php if ($_product->isSaleable() && $block->hasOptions()):?>
+    <div class="bundle-actions">
+        <button id="bundle-slide"
+                class="action primary customize"
+                type="button">
+            <span><?= /* @escapeNotVerified */ __('Customize and Add to Cart') ?></span>
+        </button>
+    </div>
+<?php endif;?>

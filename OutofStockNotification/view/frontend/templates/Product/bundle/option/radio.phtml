@@ -1,0 +1,119 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /* @var $block \Magento\Bundle\Block\Catalog\Product\View\Type\Bundle\Option\Radio */ ?>
+<?php $_option = $block->getOption(); ?>
+<?php $_selections  = $_option->getSelections(); ?>
+<?php $_default     = $_option->getDefaultSelection(); ?>
+<?php list($_defaultQty, $_canChangeQty) = $block->getDefaultValues(); ?>
+<?php $notifyBlock = $block->getLayout()->createBlock('Mageants\OutofStockNotification\Block\Product\Notify');?>
+<div class="field option <?= ($_option->getRequired()) ? ' required': '' ?>">
+    <label class="label">
+        <span><?= $block->escapeHtml($_option->getTitle()) ?></span>
+    </label>
+    <div class="control">
+        <div class="nested options-list">
+            <?php if ($block->showSingle()): ?>
+                <?= /* @escapeNotVerified */ $block->getSelectionTitlePrice($_selections[0]) ?>
+                <input type="hidden"
+                    class="bundle-option-<?= (int)$_option->getId() ?>  product bundle option"
+                    name="bundle_option[<?= (int)$_option->getId() ?>]"
+                    value="<?= (int)$_selections[0]->getSelectionId() ?>"
+                    id="bundle-option-<?= (int)$_option->getId() ?>-<?= (int)$_selections[0]->getSelectionId() ?>"
+                    checked="checked"
+                />
+            <?php else:?>
+                <?php if (!$_option->getRequired()): ?>
+                    <div class="field choice">
+                        <input type="radio"
+                               class="radio product bundle option"
+                               id="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>"
+                               name="bundle_option[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                               data-selector="bundle_option[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                               <?= ($_default && $_default->isSalable())?'':' checked="checked" ' ?>
+                               value=""/>
+                        <label class="label" for="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>">
+                            <span><?= /* @escapeNotVerified */ __('None') ?></span>
+                        </label>
+                    </div>
+                <?php endif; ?>
+                <?php foreach ($_selections as $_selection): ?>
+                    <div class="field choice">
+                        <input type="radio"
+                               class="radio product bundle option change-container-classname"
+                               id="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-<?= /* @escapeNotVerified */ $_selection->getSelectionId() ?>"
+                               <?php if ($_option->getRequired()) echo 'data-validate="{\'validate-one-required-by-name\':true}"'?>
+                               name="bundle_option[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                               data-selector="bundle_option[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                               <?php if ($block->isSelected($_selection)) echo ' checked="checked"' ?>
+                               <?php if (!$_selection->isSaleable()) echo ' disabled="disabled"' ?>
+                               value="<?= /* @escapeNotVerified */ $_selection->getSelectionId() ?>"/>
+                        <label class="label"
+                               for="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-<?= /* @escapeNotVerified */ $_selection->getSelectionId() ?>">
+                            <span><?= /* @escapeNotVerified */ $block->getSelectionTitlePrice($_selection) ?></span>
+                        </label>
+                    </div>
+                    <!-- Out of Stock Notification Start -->
+                    <?php 
+                      // $_selectionProduct = $notifyBlock->getProductStock($_selection->getId()); 
+                      $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                      $inventory = $objectManager->create('\Magento\CatalogInventory\Model\Stock\StockItemRepository');
+                      $stockInventor =$inventory->get($_selection->getId());
+                      //print_r(get_class_methods($testproduct));
+                      
+                      //print_r(array_keys($_selection->getData()));
+                    ?>
+                    <?php if ((!$stockInventor->getIsInStock()) && $notifyBlock->isAllowCustomerGroup() == 1 && $_selection->getIsEnableOutofstock()): ?>
+                      <div id="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-<?= /* @escapeNotVerified */ $_selection->getSelectionId() ?>" class="mageants-bundle-option" style="display: none;">
+                        <div class="mageants-notify-main">
+                          <div id="mageants-notify-form">
+                            <div class="mageants-notify-bundle">
+                              <div>
+                                <p><?php echo $notifyBlock->getNotificationMessage(); ?></p>
+                                <input type="hidden" id="customerId" name="customerId" value="<?php echo $notifyBlock->getLoggedCustomerId(); ?>">
+                                <input type="hidden" id="productSku" name="productSku" value="<?php echo $_selection->getSku(); ?>">
+                                <input type="hidden" id="productName" name="productName" value="<?php echo $_selection->getName(); ?>">
+                                <input type="hidden" name="producturl" class="producturl" value="<?php echo $block->getProduct()->getUrlKey().'.html'; ?>" />
+                              </div>
+                              <div>
+                                <div>
+                                  <input type="email" id="notify" name="notify" placeholder="<?= __('Please enter your email id') ?>" value = "<?php if ($notifyBlock->isLoggedIn()) { echo trim($notifyBlock->getLoggedCustomerEmail()); } ?>">
+                                </div>
+                                <div style="margin-top: 10px;">
+                                  <button id="notifyButton" class="action primary notifyBundle" formaction="<?php //echo $block->getSaveUrl(); ?>" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+                                </div>
+                              </div>                                
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <?php endif; ?>
+
+                    <!-- Out of Stock Notification End -->
+
+                <?php endforeach; ?>
+                <div id="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-container"></div>
+            <?php endif; ?>
+            <div class="field qty qty-holder">
+                <label class="label" for="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-qty-input">
+                    <span><?= /* @escapeNotVerified */ __('Quantity') ?></span>
+                </label>
+                <div class="control">
+                    <input <?php if (!$_canChangeQty) echo ' disabled="disabled"' ?>
+                           id="bundle-option-<?= /* @escapeNotVerified */ $_option->getId() ?>-qty-input"
+                           class="input-text qty<?php if (!$_canChangeQty) echo ' qty-disabled' ?>"
+                           type="number"
+                           name="bundle_option_qty[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                           data-selector="bundle_option_qty[<?= /* @escapeNotVerified */ $_option->getId() ?>]"
+                           value="<?= /* @escapeNotVerified */ $_defaultQty ?>"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

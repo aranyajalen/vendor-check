@@ -1,0 +1,57 @@
+<?php
+$helper = $this->helper('Mageants\OutofStockNotification\Helper\Data');
+$sendtime = $helper->getSendTime();
+$sendtime = str_replace(',', ':', $sendtime);
+//$sendtime =  strtotime($sendtime);
+$yesterday = $block->getYesterday();
+$subscribers = $helper->getSubscribersForAdmin()->getCollection();
+$datetoemail = $block->getSendTime($sendtime);
+$subscribers->addFieldToFilter('subscribe_date', array('from' => $yesterday));
+?>
+<?php
+if((int)$subscribers->count() > 0){
+?>
+<table>
+	
+	<tbody>
+	<tr>
+		<td><?=__('#Id');?></td>
+		<td><?=__('Customer Name');?></td>
+		<td><?=__('Email');?></td>
+		<td><?=__('Sku');?></td>
+		<td><?=__('Product Name');?></td>
+		<td><?=__('Subscribed on');?></td>
+	</tr>
+<?php
+	foreach ($subscribers as $subscriber) {
+		try {
+		
+?>
+				<tr>
+					<td><?=__($subscriber->getId());?></td>
+					<td><?=__($subscriber->getCustomerName());?></td>
+					<td><?=__($subscriber->getEmail());?></td>
+					<td><?=__($subscriber->getProductSku());?></td>
+					<td><?=__($subscriber->getProductName());?></td>
+					<td><?=__($subscriber->getSubscribeDate());?></td>
+				</tr>
+			
+<?php
+	
+		} catch (Exception $e) {
+				
+				$writer = new \Zend\Log\Writer\Stream(BP . '/var/log/stock_alert.log');
+		        $logger = new \Zend\Log\Logger();
+		        $logger->addWriter($writer);
+		        $logger->info('Something is wrong...'.$e->getMessage());
+		}
+	}
+}else{
+?>
+	<h2> <?=__('There are no subscription...'); ?></h2>
+<?php
+
+}
+?>
+	</tbody>
+</table>

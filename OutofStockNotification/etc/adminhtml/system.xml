@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mageants" translate="label" sortOrder="0">
+            <label> Mageants </label>
+        </tab>
+        <section id="mageants_outofstocknotification" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label> Out of Stock Notification </label>
+            <tab>mageants</tab>
+            <resource>Mageants_OutofStockNotification::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label> General </label>
+                <field id="is_active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Enable Out of Stock Notification </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="subscription_on_category" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Allow Subscription from Category Page </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="select_simpleofconf" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Allow to select outofstock simple product of Configurable product </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="select_simpleofbundle" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Allow to select outofstock simple product of Bundle product </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+              
+                <field id="notification_message" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Notification Message </label>
+                </field>
+            </group>
+
+            <group id="customer_stock_subscription" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label> Customer Stock Notification Subscription </label>
+                <field id="allow_customer_group" translate="label" type="multiselect" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Allow Customer Group </label>
+                    <source_model>Mageants\OutofStockNotification\Model\Customer\Source\Group</source_model>
+                </field>
+                <field id="min_qty_for_mail" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Minimum Quantity for send mail </label>
+                    <validate>validate-digits</validate>
+                </field>
+                
+            </group>
+
+            <group id="admin_stock_subscription" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label> Admin Stock Notification </label>
+                <field id="admin_email_id" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Admin Email Id </label>
+                    <validate>validate-email required-entry</validate>
+                </field>
+                <field id="send_email_to_admin_for_product" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Send Email to Admin for Low Quantity Product Notification </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="notify_admin_subscription" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Email Template For Subscription Notification to Admin </label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="email_template_for_low_qty" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Email Template For Low Quantity Product Notification </label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                
+                <field id="notify_customer_on_subscription" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Email Template  when customer subscribe </label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="send_email_to_admin_for_subscribed_customer" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Send Email to Admin for Daily Subscribed Customer </label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="email_template_for_subscribed_customer" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Set Email Template For Daily Subscribed Customer </label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+
+                <field id="notification_email_sender" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label> Notification Email Sender </label>
+                    <source_model>Mageants\OutofStockNotification\Model\Customer\Source\Sender</source_model>
+                </field>
+            </group>
+            <group id="product_alert" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label> Product Alert </label>
+                
+                <field id="start_time" translate="label comment" sortOrder="4" type="time" showInDefault="1" showInStore="1" >
+                    <label>Notify On Time</label>
+           
+                </field>
+            </group>
+         </section>
+    </system>
+</config>

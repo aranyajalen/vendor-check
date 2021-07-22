@@ -1,0 +1,19 @@
+
+<?php if ($block->isEnable() && $block->getProductQty() == 0) :?>
+	<div class="mageants-notify-main">
+		<div id="mageants-notify-form">
+			<form>
+				<div>
+					<p><?php echo $block->getNotificationMessage(); ?></p>
+				</div>
+				<div>
+					<input type="text" name="notify" placeholder="<?= __('Please enter your email id') ?>">
+				</div>
+				<div>
+					<button class="action primary" type="submit" title="<?= __('Notify') ?>"><?= __('Notify') ?></button>
+				</div>
+			</form>
+		</div>
+	</div>
+<?php  else :?>
+<?php endif;?>

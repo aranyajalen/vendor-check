@@ -1,0 +1,25 @@
+<!--@subject Product Back in Stock.... @-->
+<!--@vars
+{"store url=\"\"":"Store Url",
+"skin url=\"images/logo_email.gif\" _area='frontend'":"Email Logo Image"}
+@-->
+ 
+<!--@styles 
+.template {color: green; width:150px; height:100px;}
+#codeset{color:green;}
+@--> 
+{{template config_path="design/email/header_template"}}
+<body style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:0; padding:0;">
+    <div style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:0; padding:0;">
+        <table cellspacing="0" cellpadding="0" border="0" height="100%" width="100%">
+            <tr>
+                <td align="center" valign="top" style="padding:20px 0 20px 0">
+                    <span>{{trans "Hi..."}}   {{trans 'We notify you that <a href="%producturl">%productName</a> is now available
+                    .' productName=$data.productName producturl=$this.getUrl($store,$data.producturl, [_nosid:1]) |raw  }}</span>
+                    
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+{{template config_path="design/email/footer_template"}}
