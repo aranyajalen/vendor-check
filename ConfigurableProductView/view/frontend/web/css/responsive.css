@@ -1,0 +1,33 @@
+
+@media (min-width:200px) and (max-width:750px){
+	
+	.magneto_cart_detail .product_detail .prod_img{width: 100%;float:none;}
+	.magneto_cart_detail .product_detail .product_add_cart_block{width: 100%;float: none;}
+	
+	.magneto_cart_detail .cart_table_two{overflow: auto;}
+	.magneto_cart_detail .product_detail .product_add_cart_block table th{font-size: 11px;}
+
+	.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_two table th{padding: 10px;}
+	.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_two table .quantity_input input{width: 30px;}
+	
+	
+	
+	.magneto_cart_detail .cart_table_four{padding: 0}
+	.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_two table .qty_adding{width: 60px;display: block;}
+	
+	
+	.cart_table_five .quantity_plus_minus span{width: 20px;height: 24px}
+	.cart_table_five .quantity_plus_minus input{width: 32px;height: 18px}
+	
+	.cart_table_five .final_total{width: 44%;}
+	
+}
+	
+	
+	
+@media (min-width:751px) and (max-width:900px){
+	
+	.magneto_cart_detail .cart_table_four table{overflow: auto;}
+	.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_two table .qty_adding{width: 60px;display: block}
+	.magneto_cart_detail .product_detail .product_add_cart_block table th{font-size: 11px}
+}

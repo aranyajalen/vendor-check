@@ -1,0 +1,90 @@
+<?php
+/**
+ * FME Extensions
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the fmeextensions.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.fmeextensions.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category  FME
+ * @author     Atta <support@fmeextensions.com>
+ * @package   FME_ConfigurableProductView
+ * @copyright Copyright (c) 2019 FME (http://fmeextensions.com/)
+ * @license   https://fmeextensions.com/LICENSE.txt
+ */
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php 
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$block1 = $objectManager->create('FME\ConfigurableProductView\Block\Cpv');
+$helper= $objectManager->create('FME\ConfigurableProductView\Helper\Data');
+?>
+<?php $buttonTitle = __('Update Cart'); ?>
+<?php if ($_product->isSaleable()) :?>
+    <div class="box-tocart update">
+        <fieldset class="fieldset">
+            <?php if ($block->shouldRenderQuantity()) :?>
+            <div class="field qty">
+                <label class="label" for="qty"><span><?= $block->escapeHtml(__('Qty')) ?></span></label>
+                <div class="control">
+                    <input type="number"
+                           name="qty"
+                           id="qty"
+                           min="0"
+                           value=""
+                           title="<?= $block->escapeHtmlAttr(__('Qty')) ?>"
+                           class="input-text qty"
+                           data-validate="<?= $block->escapeHtmlAttr(json_encode($block->getQuantityValidators())) ?>"/>
+                </div>
+            </div>
+            <?php endif; ?>
+            <div class="actions">
+                <button type="submit"
+                        title="<?= $block->escapeHtmlAttr($buttonTitle) ?>"
+                        class="action primary tocart"
+                        id="product-updatecart-button">
+                    <span><?= $block->escapeHtml($buttonTitle) ?></span>
+                </button>
+                <?= $block->getChildHtml('', true) ?>
+            </div>
+        </fieldset>
+    </div>
+    <script type="text/x-magento-init">
+        {
+            "#product_addtocart_form": {
+                "validation": {},
+                "addToCart": {
+                    "cartButtonId": "#product-updatecart-button",
+                    "cartForm": "#product_addtocart_form"
+                }
+            }
+        }
+    </script>
+<?php endif; ?>
+<?php if ($helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
+
+<script>
+    require(['jquery'], function($){
+        $(".adminurllclass").attr("id","product_addtocart_form");
+    });
+    require(['jquery'], function($){
+        setTimeout(function(){
+            $(".product-options-bottom").css("display","block");
+            $(".product-options-wrapper").css("display","block");
+            $(".magneto_cart_detail").css("display","none");
+            $(".addtocartclass").css("display","none");
+            var url= $("#updateUrlLink").val();
+            $(".adminurllclass").attr("action",url);
+        }, 500);
+
+    });
+    </script>
+
+<?php endif; ?>

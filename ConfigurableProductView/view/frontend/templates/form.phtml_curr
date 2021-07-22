@@ -1,0 +1,1047 @@
+<?php
+/**
+ * FME Extensions
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the fmeextensions.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.fmeextensions.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category  FME
+ * @author     Atta <support@fmeextensions.com>
+ * @package   FME_ConfigurableProductView
+ * @copyright Copyright (c) 2019 FME (http://fmeextensions.com/)
+ * @license   https://fmeextensions.com/LICENSE.txt
+ */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$block1 = $objectManager->create('FME\ConfigurableProductView\Block\Cpv');
+?>
+<?php
+$helper= $objectManager->create('FME\ConfigurableProductView\Helper\Data');
+$id=$block1->getCurrentProduct()->getId();
+$isattach=$block1->checkisAttached($id);
+?>
+
+<?php $_helper = $this->helper(Magento\Catalog\Helper\Output::class); ?>
+<?php $_product = $block->getProduct(); ?>
+<div class="product-add-form">
+
+    <?php if ($helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+        <form data-product-sku="<?= $block->escapeHtmlAttr($_product->getSku()) ?>"
+            action="<?= $block->escapeUrl($block1->getFormAction()) ?>" method="post" class="adminurllclass"
+           <?php if ($_product->getOptions()) :?> enctype="multipart/form-data"<?php endif; ?>>
+    <?php else :?>
+        <form data-product-sku="<?= $block->escapeHtmlAttr($_product->getSku()) ?>"
+          action="<?= $block->escapeUrl($block->getSubmitUrl($_product)) ?>" method="post"
+          id="product_addtocart_form"<?php if ($_product->getOptions()) :?> enctype="multipart/form-data"<?php endif; ?>>
+    <?php endif; ?>
+    <input type="hidden" name="product" value="<?= (int)$_product->getId() ?>" />
+    <input type="hidden" name="selected_configurable_option" value="" />
+    <input type="hidden" name="related_product" id="related-products-field" value="" />
+    <input type="hidden" name="item"  value="<?= (int)$block->getRequest()->getParam('id') ?>" />
+    <?= $block->getBlockHtml('formkey') ?>
+
+    <?= $block->getChildHtml('form_bottom') ?>
+    <!-- Matrix and color is fixed -->
+    <?php if($_product->getTypeId() =="configurable"): ?>
+    <?php
+        $data=$block1->getArrayData($id);
+        $sizes=$block1->numberOfSizes($id);
+        $currency=$block1->getCurrecySyb();
+        $colorArray=$block1->colorAndSizeOnlyarray($id)[1]; //first size and secind color
+        
+    ?>
+    <?php if ($helper->getTheme()=="matrix"  && $helper->isEnableFixedColor() && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+                            <!-- Tier Pricing -->
+                        <?php if ($helper->isEnableTierPrice()): ?>
+                            <div class="tier-price-wrapper">
+                            <div class="tier-table-title">
+                                   Price Guide <span class="customise">want customisation? Add you branding below</span>
+                                </div>
+                            <table>
+
+                                <?php foreach ($data as $key1 => $value1): ?>
+                                    <?php 
+
+                                        $size_arr=$value1[0];
+                                        $color_arr=$value1[1];
+                                        $extra=$value1[2];
+                                        $origional_price=$extra['regularPrice'];
+                                    ?>
+                                    <?php if (isset($extra['tier_price'])): ?>
+                                        <?php 
+                                        $tier_data=$extra['tier_price'];
+                                        break;
+                                        ?>
+                                        <script>
+                                            require(['jquery'], function($){
+                                                $("#main_heading").css("display","table-row-group");
+                                            });
+                                        </script>
+
+                                        
+                                         
+                                    <?php endif; ?>
+                                <?php endforeach; ?>   
+                                        <tr>
+                                             <?php if(isset($tier_data)): ?>
+                                            <?php foreach ($tier_data as $key2 => $value): ?>
+                                            <input type="hidden" unit-price="<?php echo $value['price']; ?>" pro-id="<?php echo $key1 ?>" class="tier_rule" id="Rule_<?php echo $key1."_".$key2 ?>" qty="<?php echo (int)$value['price_qty']; ?>" name="size" value="" />
+
+                                            <td class="tier-details tier-<?php echo (int)$value['price_qty']; ?>">
+                                            <span class="tier-item"><?php echo (int)$value['price_qty']; ?> + Items</span>
+                                            <span class="tier-item-price"><?php echo $currency.$value['price']; ?></span>
+                                            <?php if (!isset($value['percentage_value'])): ?>
+                                            <span class="tier-prcntge">Save<?php echo round(100-(($value['price']/$origional_price)*100),2); ?>%</span>
+                                            <?php else :?>
+                                            <span><?php echo $value['percentage_value']; ?>%</span></td>
+                                            <?php endif; ?>
+                                            <?php endforeach; ?>
+                                            
+                                            <?php else :?>
+                                                <td class="tier-details tier-1><span class="tier-item">1 Item</span>
+                                                    <span class="tier-item-price"><?php echo $currency.$extra['regularPrice']; ?></td>
+                                                        <?php endif; ?>
+                                        </tr>
+                                                
+                            </table>
+                            </div>
+                        <?php endif; ?>
+        <input type="hidden" id="updateUrlLink" name="xyasd" value="<?php echo $block->getSubmitUrl($_product); ?>" />
+        <div class="magneto_cart_detail">
+            <div class="inner_container">
+                <div class="product_detail">
+                    <div class="product_add_cart_block" style="float:left">
+                        <div class="cart_table_two cart_table_three cart_table_five">
+                            <div class="color_change_block">
+                                <div class="title">
+                                   1. Select Colour <span class="avail-color">Available in <?php echo count($sizes);?> colours</span><strong style="display:none">XS</strong>
+                                </div>
+                                <ul>
+                                    <?php foreach ($sizes as $key => $value): ?> 
+
+                                    <li><span class="black_color swatch-color" color-type="<?php  echo $value['label'] ?>" style="border: 1px solid black; background-color: <?php  echo $value['label'] ?>;" value= "<?php  echo $value['value_index'] ?>" ></span></li>
+                                    
+                                    <?php endforeach; ?>            
+
+                                </ul>
+                            </div>
+                            <!-- <div style="cursor: pointer;" id="resetbtn" class="summary_block">
+                                <div href="#"><?php // echo $helper->getRestBtnLabel(); ?></div>
+                                </div> -->
+                                <div class="size-table-title">
+                                   2. Select Size and Quantity 
+                                </div>
+                            <table>
+           
+                                <?php foreach ($data as $key => $value): ?> 
+                                <?php 
+                                    $product_id=$key;
+                                    $size_arr=$value[1];
+                                    $color_arr=$value[0];
+                                    $extra=$value[2];
+                                    ?>
+                                
+                                
+                                <tr style="display:none" class="rowcolor Row_<?php  echo $color_arr['label'] ?>" pro-id="<?php  echo $product_id; ?>">
+                                    <td class="size">
+                                                                              <!-- Add class class="itemselected" and Change Value bike to dynamic -->
+                                       <input type="checkbox" class="itemselected" id="<?php echo $size_arr['label']; ?>" name="<?php echo $size_arr['label']; ?>" value="<?php echo $size_arr['value_index']?>"> <span class="gray"><?php echo $size_arr['label']; ?></span>
+                                    </td>
+                                     <td style="display:none" id="proprice_<?php echo $product_id?>"  pro-price="<?php echo $extra['price'] ?>"><?php echo $currency.$extra['price'] ?></td>
+                                     <?php if ($extra['stock']) :?>
+                                    <td class="stock_details">in stock <div class="availble-qty"><?php echo $extra['stock'] ?> Available</div></td>
+                                                               
+                                    <td>
+                                    <div class="quantity_plus_minus">
+                                        <span class="minus"  pro-id="<?php echo $product_id?>" >-</span>
+                                        <input type="value" class="tbox" pro-id="<?php echo $product_id?>" value="0" id="textbox_<?php echo $product_id?>">
+                                        <span class="plus"  pro-id="<?php echo $product_id?>" >+</span>
+                                        
+                                        <strong style="display:none" class="subt" sub-total="0" id="subtotal_<?php echo $product_id?>" >subtotal:$0.00</strong>
+                                    </div>
+                                    </td>
+                                   
+                                    <?php else :?>
+                                        <td></td>
+                                        <td class="stock_details">Call for stock availability <div class="availble-qty"><a href="#" id="click-me">Notify me when it's in stock</a></div></td>
+                                        <?php endif; ?>
+                                </tr>
+                                <?php endforeach; ?>            
+
+                            </table>
+                            
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+            <?= $block->getChildHtml('form_top') ?>
+            <?php if (!$block->hasOptions()) :?>
+                <?= $block->getChildHtml('product_info_form_content') ?>
+            <?php else :?>
+                <?php if ($_product->isSaleable() && $block->getOptionsContainer() == 'container1') :?>
+                    <?= $block->getChildChildHtml('options_container') ?>
+                <?php endif;?>
+            <?php endif; ?>
+            <?php if ($_product->isSaleable() && $block->hasOptions() && $block->getOptionsContainer() == 'container2') :?>
+                <?= $block->getChildChildHtml('options_container') ?>
+            <?php endif;?>
+            <div class="addtocart-info">
+                 <div class="size-table-cart-title">
+                                   4. Add to Basket 
+                </div>
+                <div class="total-qty-details">
+                
+               <div class="total_quantity">
+                     <label><?php echo $helper->getCartQuantity(); ?> </label><span  id="netqty">0</span>
+               </div>
+               <div class="priceper_item">
+                   <label>Price Per Item</label>
+                   <span><?php echo $currency.$extra['price'] ?> per item</span>
+               </div>
+               <div class="final_total">
+                    <label><?php echo $helper->getCartTLabel(); ?></label><span  id="netpricetotal">0</span>
+                </div>
+               </div>
+            </div>
+
+        <input type="hidden" id="productid_main" name="pid_main" value="<?php echo $id; ?>" />
+        <input type="hidden" id="productid_array" name="product_ids" value="" />
+        <button class="addtocartclass action primary" style="margin-top: 5%;margin-bottom: 5%;width: 98%;height: 58px;font-size: 22px;" type="submit" disabled ><?php echo $helper->getCartbtnLabel(); ?></button>
+        <script>
+            var currencyofStore="<?php echo $currency; ?>"
+            require(['jquery'], function($){
+                $(".product-options-bottom").css("display","none");
+                $(".product-options-wrapper").find( ".swatch-opt" ).css("display","none");
+                function upincrement(up_pid)
+                {
+                    i_val=$("#textbox_"+up_pid).val();
+                    if(i_val=="")
+                    {
+                        $("#textbox_"+up_pid).val(1); 
+                    }
+                    else{
+                        $("#textbox_"+up_pid).val(parseInt(i_val)+parseInt(1));
+                    }
+                }
+                function decincrement(dec_pid)
+                {
+                    d_val=$("#textbox_"+dec_pid).val();
+                    if(parseInt(d_val)>0)
+                    {
+                        $("#textbox_"+dec_pid).val(parseInt(d_val)-parseInt(1));
+                    }
+                    if(parseInt(d_val)<0)
+                    {
+                        $("#textbox_"+dec_pid).val("0");
+                    }
+                }
+                function updatePriceRow(prow_pid)
+                {   
+                    prow_qty=$("#textbox_"+prow_pid).val();
+                    if(prow_qty<0)
+                    {
+                        $("#textbox_"+prow_pid).val("0");
+                        prow_qty=0;  
+                    }
+                    prow_price=$("#proprice_"+prow_pid).attr("pro-price");
+                    $("#subtotal_"+prow_pid).html("subtotal:"+currencyofStore+(parseInt(prow_qty)*parseInt(prow_price)))
+                    $("#subtotal_"+prow_pid).attr("sub-total",parseInt(prow_qty)*parseInt(prow_price))
+                }
+                function calculateoverAllQuantity()
+                {
+                    var q_totoal=0
+                    $( ".tbox").each(function() {
+                        q_totoal=parseInt(q_totoal)+parseInt($(this).val());
+                    });
+                    if(q_totoal>0)
+                    {
+                        $(".addtocartclass").prop('disabled', false);
+                    }else{
+                        $(".addtocartclass").prop('disabled', true);
+                    }
+                    $("#netqty").html(q_totoal)
+                }
+                function addCartItems(cart_pid)
+                {
+                    cart_val=$("#textbox_"+cart_pid).val();
+                    if(cart_val>0)
+                    {
+                        $("#cartRow_"+cart_pid).css("display","table-row")
+                        $("#cart_qty"+cart_pid).html(cart_val)
+                    }
+                    else{
+                        $("#cartRow_"+cart_pid).css("display","none")
+                        $("#cart_qty"+cart_pid).html(0)
+                    }
+                    
+                }
+                function calculateoverAllPrcie()
+                {
+                    var p_totoal=0
+                    $( ".subt").each(function() {
+                        p_totoal=parseInt(p_totoal)+parseInt($(this).attr("sub-total"));
+                    });
+                    $("#netpricetotal").html(currencyofStore+p_totoal)
+                }
+                function removerelteditems(rcf_pid)
+                {
+                    $("#textbox_"+rcf_pid).val(0);
+                }
+
+                function removeValue(list, value) {
+                    return list.replace(new RegExp(",?" + value + ",?"), function(match) {
+                        var first_comma = match.charAt(0) === ',',
+                            second_comma;
+
+                        if (first_comma &&
+                            (second_comma = match.charAt(match.length - 1) === ',')) {
+                            return ',';
+                        }
+                        return '';
+                        });
+                };
+
+                function addquatitytoformArrya(pro_id,pro_qty)
+                {
+                    str=$("#productid_array").val();
+                    if(str!="")
+                    {
+                        var array = str.split(',');
+                        for (i = 0; i < array.length; i++) {
+                            if(str.indexOf(pro_id) != -1)
+                            {
+                                str=removeValue(str, pro_id);
+                            }
+                        }
+                        $("#productid_array").val(str)
+                    }
+                    
+                    for (i = 0; i < parseInt(pro_qty); i++) {
+                    
+                        str=$("#productid_array").val();
+                        if(str=="")
+                        {
+                            str=str+pro_id;
+                        }else{
+                        str=str+","+pro_id;
+                        }
+                        $("#productid_array").val(str)
+                    }
+                }
+
+                function addandremovetonewstring(adr_pid)
+                {
+                    adr_qty=$("#textbox_"+adr_pid).val(); 
+                    addquatitytoformArrya(adr_pid,adr_qty);
+                }
+                function disableallproduct()
+                {
+                    $(".rowcolor").each(function() {
+                        $(this).css("display","none")
+                    });
+                }
+                function showRelatedProduct(rp_color)
+                { 
+                    disableallproduct();
+                    $( ".Row_"+rp_color).each(function() {
+                        $(this).css("display","table-row")
+                    });
+                    //Row_Brown
+
+                }
+                function sectorcolor()
+                {
+                    $(".swatch-color").each(function(){  
+                        var color_type=$(this).attr("color-type");
+                        $(this).css("border","1px solid black");
+                         // remove Class For selected option 12/07/2021                                    
+                        $(this).removeClass("selected");                                           
+                        });
+
+                }
+                function resellAllelement()
+                {
+                    $( ".tbox").each(function() {
+                        $(this).val(0);
+                            
+                    });
+                    $( ".subt").each(function() {
+                        $(this).html("subtotal:"+currencyofStore+"0")
+                    });
+                    $("#netqty").html(0);
+                    $("#netpricetotal").html(currencyofStore+"0");
+                    $("#productid_array").val("");
+                }
+                $(".swatch-color").click(function(){  
+                    //border on itself
+                    resellAllelement();
+                    sectorcolor();
+                    var color_type=$(this).attr("color-type");
+                    $(this).css("border","2px solid #0ed08e");
+                     // add Class For selected option 12/07/2021
+                    $(this).addClass("selected");
+                    showRelatedProduct(color_type);                                     
+                });
+                $(".plus").click(function(){  
+                    var i_pid=$(this).attr("pro-id");
+                    upincrement(i_pid);
+                    updatePriceRow(i_pid); 
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie(); 
+                    addandremovetonewstring(i_pid)                                       
+                });
+                $(".minus").click(function(){  
+                    var d_pid=$(this).attr("pro-id");
+                    decincrement(d_pid);
+                    updatePriceRow(d_pid);
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie();   
+                    addandremovetonewstring(d_pid)                                    
+                });
+                $(".tbox").change(function(){   
+                    ch_pid=$(this).attr("pro-id");
+                    updatePriceRow(ch_pid);
+                    calculateoverAllQuantity();   
+                    calculateoverAllPrcie();
+                    addandremovetonewstring(ch_pid) 
+                    
+                });
+                
+                $("#resetbtn").click(function(){ 
+                    $(".addtocartclass").prop('disabled', true);
+                    resellAllelement();
+                    });
+            });
+        </script>
+    <?php endif;?>
+    <?php if ($helper->getTheme()=="grid" && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+        <input type="hidden" id="updateUrlLink" name="xyasd" value="<?php echo $block->getSubmitUrl($_product); ?>" />
+        <div class="magneto_cart_detail">
+            <div class="inner_container">
+                <div class="product_detail">
+                    <div class="product_add_cart_block">
+                        <!-- Tier Pricing -->
+                        <?php if ($helper->isEnableTierPrice()): ?>
+                            <table>
+                                <thead id="main_heading" style="display: none;">
+                                    <tr>
+                                        <th><?php echo __("Sku")?></th>
+                                        <th><?php echo __("qty")?></th>
+                                        <th><?php echo __("unit price")?></th>
+                                        <th><?php echo __("save")?></th>
+                                    </tr>
+                                </thead>
+                                <?php foreach ($data as $key1 => $value1): ?>
+                                    <?php 
+
+                                        $size_arr=$value1[0];
+                                        $color_arr=$value1[1];
+                                        $extra=$value1[2];
+                                        $origional_price=$extra['regularPrice'];
+                                    ?>
+                                    <?php if (isset($extra['tier_price'])): ?>
+                                        <?php 
+                                        $tier_data=$extra['tier_price'];
+                                        ?>
+                                        <script>
+                                            require(['jquery'], function($){
+                                                $("#main_heading").css("display","table-row-group");
+                                            });
+                                        </script>
+
+                                        <?php foreach ($tier_data as $key2 => $value): ?>
+                                            <input type="hidden" unit-price="<?php echo $value['price']; ?>" pro-id="<?php echo $key1 ?>" class="tier_rule" id="Rule_<?php echo $key1."_".$key2 ?>" qty="<?php echo (int)$value['price_qty']; ?>" name="size" value="" />
+                                        
+                                        <tr>
+                                            <td><?php echo $size_arr['label']."-".$color_arr['label']; ?></td>
+                                            <td><?php echo (int)$value['price_qty']; ?></td>
+                                            <td><?php echo $currency.$value['price']; ?></td>
+                                            <?php if (!isset($value['percentage_value'])): ?>
+                                            <td><?php echo round(100-(($value['price']/$origional_price)*100),2); ?>%</td>
+                                            <?php else :?>
+                                            <td><?php echo $value['percentage_value']; ?>%</td>
+                                            <?php endif; ?>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>            
+                            </table>
+                        <?php endif; ?>
+                        <div class="cart_table_two">
+                            <div class="custom" style="overflow: auto;height: 286px;">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo __("size")?></th>
+                                            <th><?php echo __("color")?></th>
+                                            <th><?php echo __("Stock Qty")?></th>
+                                            <th><?php echo __("unit price")?></th>
+                                            <th><?php echo __("subtotal")?></th>
+                                            <th><?php echo __("qty")?></th>
+                                        </tr>
+                                    </thead>
+                                    <!-- Start of matrix -->
+                                    <?php foreach ($data as $key => $value): ?> 
+                                        <?php 
+                                            $product_id=$key;
+                                            $size_arr=$value[0];
+                                            $color_arr=$value[1];
+                                            $extra=$value[2];
+                                            $origional_price=$extra['regularPrice'];
+                                        ?>
+                                        <input type="hidden" id="" name="size" value="" />
+                                        <tr>
+                                            <td class="size" size-id="<?php echo $size_arr['label']; ?>">
+                                                <span><?php echo $size_arr['label']; ?></span>
+                                            </td>
+                                            <td class="color">
+                                                <span class="green_col" style="background-color: <?php  echo $color_arr['label'] ?>;"></span>
+                                            </td>
+                                            <td id="stock_<?php echo $product_id?>"><?php echo $extra['stock'] ?></td>
+                                            <td id="price_<?php echo $product_id?>" p-price="<?php echo $extra['price'] ?>"  >
+                                            <?php if ($extra['price']!=$origional_price): ?>
+                                                <span class="old_price"><?php echo $currency.$origional_price; ?></span>    
+                                                <span class="new_price"><?php echo $currency.$extra['price']; ?></span>
+                                            <?php else :?>
+                                                <?php echo $currency.$extra['price'] ?>
+                                            <?php endif; ?>
+                                            </td>
+                                            <td id="netprice_<?php echo $product_id?>" class="netpriceeach" value="0">0</td>
+                                            <td><input of-size="<?php echo $size_arr['label']; ?>" pro-id="<?php echo $product_id?>" class="quantity_text quantity_input_<?php echo $size_arr['label']; ?>" type="number" id="quantity" name="quantity" min="0" max="<?php echo $extra['stock'] ?>" value="0"></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <!-- End of matrix -->
+                                </table>
+                            </div>
+                            <div class="extra_quantity_block">
+                                <?php foreach ($sizes as $key => $value): ?> 
+                                    <div class="sizes" style="display:none;" id="sizediv_<?php echo $value['label']; ?>">
+                                        <div class="left"><span id="sizelable"><?php echo $value['label']; ?></span></div>
+                                        <div class="right"><span id="quantitylbael_<?php echo $value['label']; ?>">0</span></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="total_quantity">
+                                <label><?php echo $helper->getCartQuantity(); ?> <span id="netqty">0</span></label>
+                            </div>
+                            <div class="final_total">
+                                <label><?php echo $helper->getCartTLabel(); ?> <span id="netpricetotal"> 0.00</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <input type="hidden" id="productid_main" name="pid_main" value="<?php echo $id; ?>" />
+        <input type="hidden" id="productid_array" name="product_ids" value="" />
+        <button class="addtocartclass action primary" style="margin-top: 5%;margin-bottom: 5%;width: 98%;height: 58px;font-size: 22px;" type="submit" disabled><?php echo $helper->getCartbtnLabel(); ?></button>
+    <?php endif; ?>
+    <!-- Matrix -->
+    <?php if ($helper->getTheme()=="matrix"  && (!$helper->isEnableFixedColor()) && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+        <?php 
+            $del_image= $block->getViewFileUrl('FME_ConfigurableProductView::images/delte_icon.png');
+            $up_image= $block->getViewFileUrl('FME_ConfigurableProductView::images/arrow_up.png');
+            $down_image= $block->getViewFileUrl('FME_ConfigurableProductView::images/arrow_down.png');
+        ?>
+        <div class="magneto_cart_detail">
+            <div class="inner_container">
+                <div class="product_detail">
+                    <div class="product_add_cart_block">
+`                        <div class="cart_table_two cart_table_three">
+                            <div class="summary_block">
+                                <span>Total summary</span>
+                                <div style="cursor: pointer;" id="resetbtn"><?php echo $helper->getRestBtnLabel(); ?></div>
+                            </div>
+                            <table>
+                                <thead id="main_mat_head" style="display:none">
+                                    <tr>
+                                        <th><?php echo __("sku")?></th>
+                                        <th><?php echo __("attribute")?></th>
+                                        <th><?php echo __("qty")?></th>
+                                        <th></th>  
+                                    </tr>
+                                </thead>
+                                <?php foreach ($data as $key => $value): ?> 
+                                    <?php 
+                                    $product_id=$key;
+                                    $size_arr=$value[0];
+                                    $color_arr=$value[1];
+                                    $extra=$value[2];
+                                    ?>
+                                    <tr style="display:none" id="cartRow_<?php echo $product_id?>">
+                                        <td><?php echo $extra['sku'] ?></td>
+                                        <td class="size color">
+                                            <span class="gray"><?php echo $size_arr['label']; ?></span>
+                                            <span class="green_col" style="background-color: <?php  echo $color_arr['label'] ?>" ></span>
+                                        </td>
+                                        <td id="cart_qty<?php echo $product_id?>">0</td>
+                                        <td class="removeclass" pro-id="<?php echo $product_id?>"><img  src="<?php  echo $del_image; ?>" alt=""></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </table>
+                            <div class="total_quantity">
+                                <label><?php echo $helper->getCartQuantity(); ?><span id="netquantity">0</span></label>
+                            </div>
+                            <div class="final_total">
+                                <label><?php echo $helper->getCartTLabel(); ?> <span id="netprice">$0.00</span></label>
+                            </div>
+                        </div>
+                        <div class="cart_table_two cart_table_four">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><?php echo __("size")?></th>
+                                        <th><?php echo __("color")?></th>
+                                        <th><?php echo __("stock")?><br> <?php echo __("qty")?></th>
+                                        <th><?php echo __("product")?><br><?php echo __("sku")?></th>
+                                        <th><?php echo __("unit price")?></th>
+                                        <th class="qty_adding"><?php echo __("qty")?></th>
+                                        <th><?php echo __("subtotal")?></th>
+                                    </tr>
+                                </thead>
+                                <!-- Start Loop -->
+                                <?php foreach ($data as $key => $value): ?> 
+                                <?php 
+                                    $product_id=$key;
+                                    $size_arr=$value[0];
+                                    $color_arr=$value[1];
+                                    $extra=$value[2];
+                                    ?>
+                                    <tr>
+                                        <td class="size">
+                                            <span><?php echo $size_arr['label']; ?></span>
+                                        </td>
+                                        <td class="color">
+                                            <span class="green_col" style="background-color: <?php  echo $color_arr['label'] ?>" ></span>
+                                        </td>
+                                        <td><?php echo $extra['stock'] ?></td>
+                                        <td class="product_Sku"><?php echo $extra['sku'] ?></td>
+                                        <td id="proprice_<?php echo $product_id?>"  pro-price="<?php echo $extra['price'] ?>"><?php echo $currency.$extra['price'] ?></td>
+                                        <td class="quantity_input quantity_input_arrow"><input type="number" class="tbox" pro-id="<?php echo $product_id?>" value="0" id="textbox_<?php echo $product_id?>"/>
+                                            <div class="arrow_adding">
+                                                <div class="arrow_up" pro-id="<?php echo $product_id?>" >
+                                                <img  src="<?php  echo $up_image; ?>" alt="">
+                                                </div>
+                                                <div class="arrow_down" pro-id="<?php echo $product_id?>">
+                                                <img class="decrement" pro-id="<?php echo $product_id?>" src="<?php  echo $down_image; ?>" alt="">
+                                                </div> 
+                                            </div>
+                                        </td>
+                                        <td class="subt" sub-total="0" id="subtotal_<?php echo $product_id?>">$0.00</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <!--  End Loop -->                        
+                            </table>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+        <input type="hidden" id="productid_main" name="pid_main" value="<?php echo $id; ?>" />
+        <input type="hidden" id="productid_array" name="product_ids" value="" />
+        <button class="addtocartclass action primary" style="margin-top: 5%;margin-bottom: 5%;width: 43%;height: 58px;font-size: 22px;" type="submit"  disabled><?php echo $helper->getCartbtnLabel(); ?> </button>
+        <script>
+            require(['jquery'], function($){
+                $(".product-options-bottom").css("display","none");
+                $(".product-options-wrapper").find( ".swatch-opt" ).css("display","none");
+            });
+            var currencyofStore="<?php echo $currency; ?>"
+            require(['jquery'], function($){
+                function upincrement(up_pid)
+                {
+                    i_val=$("#textbox_"+up_pid).val();
+                    if(i_val=="")
+                    {
+                        $("#textbox_"+up_pid).val(1); 
+                    }
+                    else{
+                        $("#textbox_"+up_pid).val(parseInt(i_val)+parseInt(1));
+                    }
+                }
+                function decincrement(dec_pid)
+                {
+                    d_val=$("#textbox_"+dec_pid).val();
+                    if(parseInt(d_val)>0)
+                    {
+                        $("#textbox_"+dec_pid).val(parseInt(d_val)-parseInt(1));
+                    }
+                    if(parseInt(d_val)<0)
+                    {
+                        $("#textbox_"+dec_pid).val("0");
+                    }
+                }
+                function updatePriceRow(prow_pid)
+                {   
+                    prow_qty=$("#textbox_"+prow_pid).val();
+                    if(prow_qty<0)
+                    {
+                        $("#textbox_"+prow_pid).val("0");
+                        prow_qty=0;  
+                    }
+                    prow_price=$("#proprice_"+prow_pid).attr("pro-price");
+                    $("#subtotal_"+prow_pid).html(currencyofStore+(parseInt(prow_qty)*parseInt(prow_price)))
+                    $("#subtotal_"+prow_pid).attr("sub-total",parseInt(prow_qty)*parseInt(prow_price))
+                }
+                function calculateoverAllQuantity()
+                {
+                    var q_totoal=0
+                    $( ".tbox").each(function() {
+                        q_value=$(this).val();
+                        if(q_value=="")
+                        {
+                            q_value=0
+                        }
+                        q_totoal=parseInt(q_totoal)+parseInt(q_value);
+                    });
+                    if(q_totoal>0)
+                    {
+                        $(".addtocartclass").prop('disabled', false);
+                        $("#main_mat_head").css("display","table-row-group");
+
+                    }else{
+                        $("#main_mat_head").css("display","none");
+                        $(".addtocartclass").prop('disabled', true);
+                    }
+                    $("#netquantity").html(q_totoal)
+                }
+                function addCartItems(cart_pid)
+                {
+                    cart_val=$("#textbox_"+cart_pid).val();
+                    if(cart_val=="")
+                    {
+                        cart_val=0;
+                    }
+                    if(cart_val>0)
+                    {
+                        $("#cartRow_"+cart_pid).css("display","table-row")
+                        $("#cart_qty"+cart_pid).html(cart_val)
+                    }
+                    else{
+                        $("#cartRow_"+cart_pid).css("display","none")
+                        $("#cart_qty"+cart_pid).html(0)
+                    }
+                }
+                function calculateoverAllPrcie()
+                {
+                    var p_totoal=0
+                    $( ".subt").each(function() {
+                        p_totoal=parseInt(p_totoal)+parseInt($(this).attr("sub-total"));
+                    });
+                    $("#netprice").html(currencyofStore+p_totoal)
+                }
+                function removerelteditems(rcf_pid)
+                {
+                    $("#textbox_"+rcf_pid).val(0);
+                }
+
+                function removeValue(list, value) {
+                    return list.replace(new RegExp(",?" + value + ",?"), function(match) {
+                        var first_comma = match.charAt(0) === ',',
+                            second_comma;
+
+                        if (first_comma &&
+                            (second_comma = match.charAt(match.length - 1) === ',')) {
+                            return ',';
+                        }
+                        return '';
+                        });
+                };
+
+                function addquatitytoformArrya(pro_id,pro_qty)
+                {
+                    str=$("#productid_array").val();
+                    if(str!="")
+                    {
+                        var array = str.split(',');
+                        for (i = 0; i < array.length; i++) {
+                            if(str.indexOf(pro_id) != -1)
+                            {
+                                str=removeValue(str, pro_id);
+                            }
+                        }
+                        $("#productid_array").val(str)
+                    }
+                    
+                    for (i = 0; i < parseInt(pro_qty); i++) {
+                    
+                        str=$("#productid_array").val();
+                        if(str=="")
+                        {
+                            str=str+pro_id;
+                        }else{
+                        str=str+","+pro_id;
+                        }
+                        $("#productid_array").val(str)
+                    }
+                }
+
+                function addandremovetonewstring(adr_pid)
+                {
+                    adr_qty=$("#textbox_"+adr_pid).val(); 
+                    addquatitytoformArrya(adr_pid,adr_qty);
+                }
+                $(".tbox").change(function(){   
+                    ch_pid=$(this).attr("pro-id");
+                    updatePriceRow(ch_pid);
+                    calculateoverAllQuantity();   
+                    calculateoverAllPrcie(); 
+                    addCartItems(ch_pid)
+                    addandremovetonewstring(ch_pid) 
+                    
+                });
+
+                $(".arrow_up").click(function(){  
+                    var i_pid=$(this).attr("pro-id");
+                    upincrement(i_pid);
+                    updatePriceRow(i_pid); 
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie(); 
+                    
+                    addCartItems(i_pid) ;
+                    addandremovetonewstring(i_pid)                                       
+                });
+                $(".arrow_down").click(function(){  
+                    var d_pid=$(this).attr("pro-id");
+                    decincrement(d_pid);
+                    updatePriceRow(d_pid);
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie();   
+                    addCartItems(d_pid) 
+                    addandremovetonewstring(d_pid)                                    
+                });
+                $(".removeclass").click(function(){  
+                    var rc_pid=$(this).attr("pro-id");
+                    removerelteditems(rc_pid)
+                    updatePriceRow(rc_pid);
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie();   
+                    addCartItems(rc_pid)
+                    addandremovetonewstring(rc_pid) 
+                    
+                });
+                $("#resetbtn").click(function(){  
+                    $(".removeclass").each(function() {
+                    var rsc_pid=$(this).attr("pro-id");
+                    removerelteditems(rsc_pid)
+                    updatePriceRow(rsc_pid);
+                    calculateoverAllQuantity();
+                    calculateoverAllPrcie();   
+                    addCartItems(rsc_pid) 
+                    addandremovetonewstring(rsc_pid) 
+                    });                                 
+                });
+            });
+        </script>       
+    <?php endif; ?>   
+    <?php endif; ?>
+    </form>
+</div>
+
+<script type="text/x-magento-init">
+    {
+        "[data-role=priceBox][data-price-box=product-id-<?= $block->escapeHtml($_product->getId()) ?>]": {
+            "priceBox": {
+                "priceConfig":  <?= /* @noEscape */ $block->getJsonConfig() ?>
+            }
+        }
+    }
+</script>
+<?php if($_product->getTypeId() =="configurable"): ?>
+    <?php
+        $data=$block1->getArrayData($id);
+        $sizes=$block1->numberOfSizes($id);
+        $currency=$block1->getCurrecySyb();
+        $colorArray=$block1->colorAndSizeOnlyarray($id)[1]; //first size and secind color
+    ?>
+<?php if ($helper->getTheme()=="grid"  && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+    <script>
+        require(['jquery'], function($){
+
+            $(".product-options-bottom").css("display","none");
+            $(".product-options-wrapper").find( ".swatch-opt" ).css("display","none");
+        });
+        var currencyofStore="<?php echo $currency; ?>"
+        require(['jquery'], function($){
+            $(".quantity_text").change(function(){
+                function addnetQuantity()
+                {
+                    var totoal=0
+                    $( ".quantity_text").each(function() {
+                        add_value=$(this).val();
+                        if(add_value=="" )
+                        {
+                            add_value=0;
+                        }
+                        totoal=parseInt(totoal)+parseInt(add_value);
+                    });
+                    if(totoal>0)
+                    {
+                        $(".addtocartclass").prop('disabled', false);
+                    }else{
+                        $(".addtocartclass").prop('disabled', true);
+                    }
+                    $("#netqty").html(totoal)
+                }
+                function addNettotla()
+                {
+                    var totoalprice=0
+                    $( ".netpriceeach").each(function() {
+                        var price=$(this).attr("value");
+
+                        totoalprice=parseInt(totoalprice)+parseInt(price);
+                    });
+                    $("#netpricetotal").html( currencyofStore+totoalprice)
+                }
+
+                function removeValue(list, value) {
+                    return list.replace(new RegExp(",?" + value + ",?"), function(match) {
+                        var first_comma = match.charAt(0) === ',',
+                            second_comma;
+
+                        if (first_comma &&
+                            (second_comma = match.charAt(match.length - 1) === ',')) {
+                            return ',';
+                        }
+                        return '';
+                        });
+                };
+                function addquatitytoformArrya(pro_id,pro_qty)
+                {
+                    str=$("#productid_array").val();
+                    if(str!="")
+                    {
+                        var array = str.split(',');
+                        for (i = 0; i < array.length; i++) {
+                            if(str.indexOf(pro_id) != -1)
+                            {
+                                str=removeValue(str, pro_id);
+                            }
+                        }
+                        $("#productid_array").val(str)
+                    }
+                    for (i = 0; i < parseInt(pro_qty); i++) {
+                        str=$("#productid_array").val();
+                        if(str=="")
+                        {
+                            str=str+pro_id;
+                        }else{
+                        str=str+","+pro_id;
+                        }
+                        $("#productid_array").val(str)
+                    }
+                }
+                function calculatePriceofRule(productid,c_quantity)
+                {
+                    var c_nettotal=0;
+                    $( ".tier_rule").each(function() {
+                        var c_prodcut_id=$(this).attr("pro-id");
+                        if(c_prodcut_id==productid)
+                        {
+                            var c_pro_id=$(this).attr("pro-id");
+                            var c_unit_price=$(this).attr("unit-price");
+                            var c_qty=$(this).attr("qty");
+                            if(parseInt(c_qty) <= parseInt(c_quantity))
+                            {
+                                var temp_nettotal= c_unit_price*c_quantity;
+                                temp_nettotal=parseFloat(temp_nettotal)
+                                temp_nettotal=temp_nettotal.toFixed(2)
+                                if(c_nettotal==0 )
+                                {
+                                    c_nettotal= temp_nettotal;
+                                }else{
+                                    if(temp_nettotal<c_nettotal)
+                                    {
+                                        c_nettotal=temp_nettotal;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    return c_nettotal;
+                }
+                function roundoffNumber(number)
+                {
+                    var n = number;
+                    (Math.round( n * 100 )/100 ).toString() //-> "1.1"
+                    n=n.toFixed(2);
+                    return n;
+                }
+                function addquatity(size)
+                {
+                    var nettotal=0;
+                    $( ".quantity_input_"+size ).each(function() {
+                        s_value=$(this).val()
+                        if(s_value=="")
+                            s_value=0;
+                        nettotal=parseInt(nettotal)+parseInt(s_value);
+                    });
+                    if(nettotal>0)
+                    {   
+                        $("#quantitylbael_"+size).html(nettotal);
+                        $("#sizediv_"+size).css("display","inline-block");
+                    }else
+                    {
+                        
+                        $("#quantitylbael_"+size).html(0);
+                        $("#sizediv_"+size).css("display","none");
+                    }             
+                }
+                var pid=$(this).attr("pro-id");
+                var price=$("#price_"+pid).attr("p-price");
+                var qty=$(this).val();
+                if(qty<=0)
+                {
+                    qty=0;
+                    $(this).val("0");
+                }
+                var text_qty=$(this).val();
+                if(text_qty<=0)
+                { 
+                    $(this).val("0");
+                    text_qty=0;
+                }
+                net_price=price*qty;
+                net_price=roundoffNumber(net_price);
+                price_byRule=calculatePriceofRule(pid,qty);
+                price_byRule=parseFloat(price_byRule);
+                net_price=parseFloat(net_price)
+                if(price_byRule!=0 && price_byRule<=net_price )
+                {
+                    $("#netprice_"+pid).html(currencyofStore+price_byRule);
+                    $("#netprice_"+pid).attr("value",price_byRule);
+                }
+                else{
+                    $("#netprice_"+pid).html(currencyofStore+net_price);
+                    $("#netprice_"+pid).attr("value",net_price);
+                }
+                var size=$(this).attr("of-size");
+                addquatity(size);
+                addnetQuantity();
+                addNettotla();
+                addquatitytoformArrya(pid,text_qty);
+            });
+        });
+    </script>
+<?php endif; ?>
+<style>
+.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five table th{    padding-top: 20px;
+    padding-bottom: 18px;
+    text-align: center}
+.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five table td {    border: 1px solid #b5b5b5;}
+.magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five th{    border: 1px solid #b5b5b5;}
+.cart_table_five .quantity_plus_minus .minus{margin-right: -3px;height: 24px;line-height: 24px;}
+.cart_table_five .quantity_plus_minus .plus{margin-left: -3px;height: 24px;line-height: 24px;}
+.cart_table_five .quantity_plus_minus input{width: 45px;height: 24px; border: 1px solid #dddddd;    border-left: 0;
+    border-right: 0;}
+    @media (min-width:200px) and (max-width:750px){.cart_table_five .quantity_plus_minus input{width: 32px;height: 22px}}
+</style>
+<?php endif; ?>
+
