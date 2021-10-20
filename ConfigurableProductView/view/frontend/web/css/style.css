@@ -129,8 +129,8 @@ height: 36px;vertical-align: top}
 .magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five table th{padding-left: 10px;}
 .magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five table td{text-align: center;}
 
-.cart_table_five .quantity_plus_minus{width: 100%;display: inline-block;}
-.cart_table_five .quantity_plus_minus span{color: #000;font-size: 14px;text-align: center;display: inline-block;border: 1px solid #bfbfbf;width: 24px;height: 26px;background-color: #DDDDDD;line-height: 25px;cursor: pointer}
+.cart_table_five .quantity_plus_minus{display: inline-block;float: right;}
+.cart_table_five .quantity_plus_minus span{color: #000;font-size: 14px;text-align: center;display: inline-block;border: 1px solid #bfbfbf;width: 24px;height: 26px;line-height: 25px;cursor: pointer}
 .cart_table_five .quantity_plus_minus input{width:44px;height: 20px;text-align: center;vertical-align: top;}
 
 .cart_table_five .quantity_plus_minus strong{display: block;padding-top: 5px}
@@ -154,8 +154,6 @@ height: 36px;vertical-align: top}
 .cart_table_five .color_change_block .title strong{font-size: 15px;color:#777; font-weight: 400;padding-left: 10px;}
 
 .cart_table_five .color_change_block ul li{display: inline-block;padding: 0px 5px;}
-.cart_table_five .color_change_block ul li:first-child{padding-left: 0px;}
-
 .cart_table_five .color_change_block ul li span{display: block;background-color: #000; width: 38px; height: 30px;margin: 0 auto;border: 2px solid transparent;box-sizing: border-box;}
 .cart_table_five .color_change_block ul li .orange_color{background-color: orange}
 .cart_table_five .color_change_block ul li .purple_color{background-color: purple;}

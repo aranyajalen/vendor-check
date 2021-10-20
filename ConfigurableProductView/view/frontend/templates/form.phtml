@@ -21,18 +21,19 @@
  */
 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 $block1 = $objectManager->create('FME\ConfigurableProductView\Block\Cpv');
+
 ?>
 <?php
 $helper= $objectManager->create('FME\ConfigurableProductView\Helper\Data');
 $id=$block1->getCurrentProduct()->getId();
-$isattach=$block1->checkisAttached($id);
+//$isattach=$block1->checkisAttached($id);
 ?>
 
 <?php $_helper = $this->helper(Magento\Catalog\Helper\Output::class); ?>
 <?php $_product = $block->getProduct(); ?>
 <div class="product-add-form">
 
-    <?php if ($helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+    <?php if ($helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
         <form data-product-sku="<?= $block->escapeHtmlAttr($_product->getSku()) ?>"
             action="<?= $block->escapeUrl($block1->getFormAction()) ?>" method="post" class="adminurllclass"
            <?php if ($_product->getOptions()) :?> enctype="multipart/form-data"<?php endif; ?>>
@@ -46,6 +47,7 @@ $isattach=$block1->checkisAttached($id);
     <input type="hidden" name="related_product" id="related-products-field" value="" />
     <input type="hidden" name="item"  value="<?= (int)$block->getRequest()->getParam('id') ?>" />
     <?= $block->getBlockHtml('formkey') ?>
+        <?= $block->getChildHtml('form_top') ?>
 
     <?= $block->getChildHtml('form_bottom') ?>
     <!-- Matrix and color is fixed -->
@@ -55,15 +57,17 @@ $isattach=$block1->checkisAttached($id);
         $sizes=$block1->numberOfSizes($id);
         $currency=$block1->getCurrecySyb();
         $colorArray=$block1->colorAndSizeOnlyarray($id)[1]; //first size and secind color
-        
+      
     ?>
-    <?php if ($helper->getTheme()=="matrix"  && $helper->isEnableFixedColor() && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+    <?php if ($helper->getTheme()=="matrix"  && $helper->isEnableFixedColor() && $helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
                             <!-- Tier Pricing -->
                         <?php if ($helper->isEnableTierPrice()): ?>
                             <div class="tier-price-wrapper">
                             <div class="tier-table-title">
-                                   Price Guide <span class="customise">want customisation? Add you branding below</span>
+                                   Pricing Guide <span class="customise"><a href="#options_5_file-label">want customisation? Add your branding below</a></span>
                                 </div>
+                                
+
                             <table>
 
                                 <?php foreach ($data as $key1 => $value1): ?>
@@ -92,14 +96,14 @@ $isattach=$block1->checkisAttached($id);
                                         <tr>
 
                                                 <td class="tier-details tier-1"><span class="tier-item">1 Item</span>
-                                                    <span class="tier-item-price"><?php echo $currency.$extra['regularPrice']; ?></span></td>
+                                                    <div class="tier-item-price"><?php echo $block1->getProductPrice(); ?></div></td>
                                              <?php if(isset($tier_data)): ?>
                                             <?php foreach ($tier_data as $key2 => $value): ?>
                                             <input type="hidden" unit-price="<?php echo $value['price']; ?>" pro-id="<?php echo $key1 ?>" class="tier_rule" id="Rule_<?php echo $key1."_".$key2 ?>" qty="<?php echo (int)$value['price_qty']; ?>" name="size" value="" />
 
                                             <td class="tier-details tier-<?php echo (int)$value['price_qty']; ?>">
                                             <span class="tier-item"><?php echo (int)$value['price_qty']; ?> + Items</span>
-                                            <span class="tier-item-price"><?php echo $currency.$value['price']; ?></span>
+                                            <span class="tier-item-price"><?php echo $currency.(float) $value['price']; ?></span>
                                             <?php if (!isset($value['percentage_value'])): ?>
                                             <span class="tier-prcntge">Save<?php echo round(100-(($value['price']/$origional_price)*100),2); ?>%</span>
                                             <?php else :?>
@@ -120,15 +124,23 @@ $isattach=$block1->checkisAttached($id);
                     <div class="product_add_cart_block" style="float:left">
                         <div class="cart_table_two cart_table_three cart_table_five">
                             <div class="color_change_block">
+
                                 <div class="title">
                                    1. Select Colour <span class="avail-color">Available in <?php echo count($sizes);?> colours</span><strong style="display:none">XS</strong>
                                 </div>
-                                <ul>
+                                 <ul>
                                     
                                     <?php foreach ($sizes as $key => $value): ?> 
                                        <?php $value['label']=str_replace(' ', '_', $value['label']); ?>
-                                    <li><span class="black_color swatch-color" color-type="<?php  echo $value['label'] ?>" style="border: 1px solid black; background-color: <?php  echo $value['label'] ?>;" value= "<?php  echo $value['value_index'] ?>" ></span></li>
-                                    
+                                        <?php $hashcode = $block1->getAtributeSwatchHashcode($value['value_index']);
+                                        $firstchar = mb_substr($hashcode, 0, 1, 'utf-8')
+                                         ?>
+                                     
+                                         <?php if($firstchar == '#') :?>
+                                    <li><span class="black_color swatch-color swatch-option image" color-type="<?php  echo $value['label'] ?>" style="border: 1px solid black; background-color: <?php echo $hashcode ?>;" value= "<?php  echo $value['value_index'] ?>" ></span></li>
+                                <?php else :?>
+                                <li><span class="black_color swatch-color swatch-option image" color-type="<?php  echo $value['label'] ?>" style="border: 1px solid black; background: url('<?php echo $block1->getSwatchmediaUrl(); ?>attribute/swatch<?php echo $hashcode ?>');background-size: cover;"  value= "<?php  echo $value['value_index'] ?>" ></span></li>
+                            <?php endif ?>
                                     <?php endforeach; ?>            
 
                                 </ul>
@@ -138,6 +150,7 @@ $isattach=$block1->checkisAttached($id);
                                 </div> -->
                                 <div class="size-table-title">
                                    2. Select Size and Quantity 
+                                   <div class="size-img"><a href="#tab-label-sizechart-title"><img src='<?php echo $this->getViewFileUrl('images/shirt-sharp.svg'); ?>' alt="Demo"><span>Size guide</span></a></div>
                                 </div>
                             <table>
            
@@ -153,13 +166,18 @@ $isattach=$block1->checkisAttached($id);
                                 <tr style="display:none" class="rowcolor Row_<?php  echo $color_arr['label'] ?>" pro-id="<?php  echo $product_id; ?>">
                                     <td class="size">
                                                                               <!-- Add class class="itemselected" and Change Value bike to dynamic -->
-                                       <input type="checkbox" class="itemselected" id="<?php echo $size_arr['label']; ?>" name="<?php echo $size_arr['label']; ?>" value="<?php echo $size_arr['value_index']?>"> <span class="gray"><?php echo $size_arr['label']; ?></span>
+                                       
+                                       <label class="sizecustomcheckbox">
+                                         <input type="checkbox" class="itemselected" id="<?php echo $size_arr['label']; ?>" name="<?php echo $size_arr['label']; ?>" value="<?php echo $size_arr['value_index']?>"> <span class="gray"><?php echo $size_arr['label']; ?></span>
+                                          <span class="checkmark"></span>
+                                        </label>
                                     </td>
                                      <td style="display:none" id="proprice_<?php echo $product_id?>"  pro-price="<?php echo $extra['price'] ?>"><?php echo $currency.$extra['price'] ?></td>
                                      <?php if ($extra['stock']) :?>
-                                    <td class="stock_details">in stock <div class="availble-qty"><?php echo $extra['stock'] ?> Available</div></td>
+                                   
                                                                
                                     <td>
+                                        <div class="stock_details" style="display: inline-block;"> <span> In stock</span><div class="availble-qty"><?php echo $extra['stock'] ?> Available</div></div>
                                     <div class="quantity_plus_minus">
                                         <span class="minus"  pro-id="<?php echo $product_id?>" >-</span>
                                         <input type="value" class="tbox" pro-id="<?php echo $product_id?>" value="0" id="textbox_<?php echo $product_id?>">
@@ -170,14 +188,13 @@ $isattach=$block1->checkisAttached($id);
                                     </td>
                                    
                                     <?php else :?>
-                                        <td></td>
                                         <td class="stock_details">Call for stock availability <div class="availble-qty"><a href="#" id="click-me">Notify me when it's in stock</a></div></td>
                                         <?php endif; ?>
                                 </tr>
                                 <?php endforeach; ?>            
 
                             </table>
-                            
+                            <p class="more-250">Trying to order more than 250 items? Please call us on 0114 398 9454</p>
                         </div>
                     </div>
                 </div>  
@@ -201,7 +218,7 @@ $isattach=$block1->checkisAttached($id);
                 <div class="total-qty-details">
                 
                <div class="total_quantity">
-                     <label><?php echo $helper->getCartQuantity(); ?> </label><span  id="netqty">0</span>
+                     <label><?php echo $helper->getCartQuantity(); ?> </label><span id="netqty">0</span><span>Items</span>
                </div>
                <div class="priceper_item">
                    <label>Price Per Item</label>
@@ -423,7 +440,7 @@ $isattach=$block1->checkisAttached($id);
             });
         </script>
     <?php endif;?>
-    <?php if ($helper->getTheme()=="grid" && $helper->isEnabledInFrontend() && $isattach && $_product->getTypeId() =="configurable"): ?>
+    <?php if ($helper->getTheme()=="grid" && $helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
         <input type="hidden" id="updateUrlLink" name="xyasd" value="<?php echo $block->getSubmitUrl($_product); ?>" />
         <div class="magneto_cart_detail">
             <div class="inner_container">
@@ -433,7 +450,7 @@ $isattach=$block1->checkisAttached($id);
                         <?php if ($helper->isEnableTierPrice()): ?>
                             <div class="tier-price-wrapper">
                             <div class="tier-table-title">
-                                   Price Guide <span class="customise">want customisation? Add you branding below</span>
+                                   Pricing Guide <span class="customise"><a href="#options_5_file-label">want customisation? Add your branding below</a></span>
                                 </div>
                             <table>
 
@@ -554,7 +571,7 @@ $isattach=$block1->checkisAttached($id);
         <button class="addtocartclass action primary" style="margin-top: 5%;margin-bottom: 5%;width: 98%;height: 58px;font-size: 22px;" type="submit" disabled><?php echo $helper->getCartbtnLabel(); ?></button>
     <?php endif; ?>
     <!-- Matrix -->
-    <?php if ($helper->getTheme()=="matrix"  && (!$helper->isEnableFixedColor()) && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+    <?php if ($helper->getTheme()=="matrix"  && (!$helper->isEnableFixedColor()) && $helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
         <?php 
             $del_image= $block->getViewFileUrl('FME_ConfigurableProductView::images/delte_icon.png');
             $up_image= $block->getViewFileUrl('FME_ConfigurableProductView::images/arrow_up.png');
@@ -870,7 +887,7 @@ $isattach=$block1->checkisAttached($id);
         $currency=$block1->getCurrecySyb();
         $colorArray=$block1->colorAndSizeOnlyarray($id)[1]; //first size and secind color
     ?>
-<?php if ($helper->getTheme()=="grid"  && $helper->isEnabledInFrontend() &&  $isattach   && $_product->getTypeId() =="configurable"): ?>
+<?php if ($helper->getTheme()=="grid"  && $helper->isEnabledInFrontend() && $_product->getTypeId() =="configurable"): ?>
     <script>
         require(['jquery'], function($){
 
@@ -1046,11 +1063,11 @@ $isattach=$block1->checkisAttached($id);
     text-align: center}
 .magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five table td {    border: 1px solid #b5b5b5;}
 .magneto_cart_detail .product_detail .product_add_cart_block .cart_table_five th{    border: 1px solid #b5b5b5;}
-.cart_table_five .quantity_plus_minus .minus{margin-right: -3px;height: 24px;line-height: 24px;}
-.cart_table_five .quantity_plus_minus .plus{margin-left: -3px;height: 24px;line-height: 24px;}
-.cart_table_five .quantity_plus_minus input{width: 45px;height: 24px; border: 1px solid #dddddd;    border-left: 0;
+.cart_table_five .quantity_plus_minus .minus{margin-right: -3px;height: 40px;line-height: 40px;width: 30px;}
+.cart_table_five .quantity_plus_minus .plus{margin-left: -3px;height: 40px;line-height: 40px;width: 30px;}
+.cart_table_five .quantity_plus_minus input{width: 60px;height: 40px;border: 1px solid #9CA0A5;border-left: 0; 
     border-right: 0;}
-    @media (min-width:200px) and (max-width:750px){.cart_table_five .quantity_plus_minus input{width: 32px;height: 22px}}
+    @media (min-width:200px) and (max-width:750px){.cart_table_five .quantity_plus_minus input{width: 32px;}}
 </style>
 <?php endif; ?>
 

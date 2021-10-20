@@ -42,6 +42,7 @@ class Cpv extends \Magento\Framework\View\Element\Template
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Framework\App\ResourceConnectionFactory $coreresourceFactory,
         \Magento\Framework\App\ResourceConnection $coreresource,
+        \Magento\Swatches\Helper\Data $swatchHelper,
         array $data = []
     ) {        
         $this->_product = $product;
@@ -57,6 +58,7 @@ class Cpv extends \Magento\Framework\View\Element\Template
         $this->_coreresourceFactory = $coreresourceFactory;
         $this->_coreresource = $coreresource;
         $this->jsLayout = isset($data['jsLayout']) && is_array($data['jsLayout']) ? $data['jsLayout'] : [];
+        $this->swatchHelper = $swatchHelper;
         parent::__construct($context, $data);
     }
 
@@ -109,6 +111,36 @@ class Cpv extends \Magento\Framework\View\Element\Template
         }
         return array();
     }
+    public function getAtributeSwatchHashcode($optionid) {
+    $hashcodeData = $this->swatchHelper->getSwatchesByOptionsId([$optionid]);
+    return $hashcodeData[$optionid]['value'];
+}
+   public function getSwatchmediaUrl(){
+    return $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+   }
+   public function getProductPrice()
+{
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
+    $priceRender = $this->getLayout()->getBlock('product.price.render.default')
+        ->setData('is_product_list', true);
+
+    $price = '';
+    if ($priceRender) {
+        $price = $priceRender->render(
+            \Magento\Catalog\Pricing\Price\FinalPrice::PRICE_CODE,
+            $product,
+            [
+                'include_container' => true,
+                'display_minimal_price' => true,
+                'zone' => \Magento\Framework\Pricing\Render::ZONE_ITEM_LIST,
+                'list_category_page' => true
+            ]
+        );
+    }
+
+    return $price;
+} 
     public function getCurrecySyb()
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 

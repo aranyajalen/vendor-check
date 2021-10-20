@@ -56,7 +56,7 @@ class InstallSchema implements InstallSchemaInterface
                         null,
                         [
                         'nullable' => false,
-                        'default' => 1,
+                        'default' => 0,
                         ],
                         'Allow configurableproductview'
                     )
